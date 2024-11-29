@@ -2,7 +2,7 @@ import { IGetUserController, IGetUsersRepository } from "./protocols";
 
 export class GetUserController implements IGetUserController {
   constructor(private readonly getUsersRepository: IGetUsersRepository) {}
-  handle() {
+  async handle() {
     try {
       //validar req
       // direcionar a chamada para o Repository
