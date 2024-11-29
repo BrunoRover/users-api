@@ -1,22 +1,51 @@
-import { MongoClient } from "../../database/mongo";
+import validator from "validator";
 import { User } from "../../models/user";
-import { CreateUserParams, ICreateRepository } from "./protocols";
+import { HttpRequest, HttpResponse } from "../protocols";
+import {
+  CreateUserParams,
+  ICreateRepository,
+  ICreateUserController,
+} from "./protocols";
 
-export class MongoCreateUser implements ICreateRepository {
-  async createUser(params: CreateUserParams): Promise<User> {
-    const { insertedId } = await MongoClient.db
-      .collection("users")
-      .insertOne(params);
+export class CreateUserController implements ICreateUserController {
+  constructor(private readonly createUserRepository: ICreateRepository) {}
 
-    const user = await MongoClient.db
-      .collection<Omit<User, "id">>("users")
-      .findOne({ _id: insertedId });
+  async handle(
+    httpRequest: HttpRequest<CreateUserParams>
+  ): Promise<HttpResponse<User>> {
+    try {
+      //verificar campos obrigatorios
+      const requireFields = ["fisrtName", "lastName", "email", "password"];
 
-    if (!user) {
-      throw new Error("User not created");
+      for (const field of requireFields) {
+        if (!httpRequest?.body?.[field as keyof CreateUserParams]?.length) {
+          return {
+            statusCode: 400,
+            body: `Field ${field} is required`,
+          };
+        }
+      }
+      //validar email
+      const emailIsValid = validator.isEmail(httpRequest.body!.email);
+      if (!emailIsValid) {
+        return {
+          statusCode: 400,
+          body: "E-mail is invalid",
+        };
+      }
+
+      const user = await this.createUserRepository.createUser(
+        httpRequest.body!
+      );
+      return {
+        statusCode: 201,
+        body: user,
+      };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        body: "Something went wrong",
+      };
     }
-
-    const { _id, ...rest } = user;
-    return { id: _id.toHexString(), ...rest };
   }
 }
