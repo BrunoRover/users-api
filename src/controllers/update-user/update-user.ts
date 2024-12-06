@@ -4,7 +4,9 @@ import { IUpdateUserRepository, UpdateUserParams } from "./protocols";
 
 export class UpdateUserController implements IController {
   constructor(private readonly updateUserRepository: IUpdateUserRepository) {}
-  async handle(httpRequest: HttpRequest<any>): Promise<HttpResponse<User>> {
+  async handle(
+    httpRequest: HttpRequest<UpdateUserParams>
+  ): Promise<HttpResponse<User>> {
     try {
       const id = httpRequest?.params?.id;
       const body = httpRequest?.body;
@@ -13,6 +15,12 @@ export class UpdateUserController implements IController {
         return {
           statusCode: 400,
           body: "Missing user id",
+        };
+      }
+      if (!body) {
+        return {
+          statusCode: 400,
+          body: "Missing fields",
         };
       }
 
