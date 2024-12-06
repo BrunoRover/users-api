@@ -5,7 +5,7 @@ import { GetUserController } from "./controllers/get-users/get-users";
 import { MongoClient } from "./database/mongo";
 import { MongoCreateUserRepository } from "./repository/create-users/mongo-create-users";
 import { CreateUserController } from "./controllers/create-user/create-user";
-import { MongoUpdateUserRepository } from "./repository/update-user/mongo-update-user";
+import { MongoUpdateUserRepository } from "./repository/update-users/mongo-update-user";
 import { UpdateUserController } from "./controllers/update-user/mongo-update-user";
 
 config();
