@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { IGetUsersRepository } from "../../controllers/get-users/protocols";
 import { MongoClient } from "../../database/mongo";
 import { User } from "../../models/user";
@@ -14,5 +15,26 @@ export class MongoGetUsersRepository implements IGetUsersRepository {
       ...rest,
       id: _id.toHexString(),
     }));
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
+
+    const user = await MongoClient.db
+      .collection<MongoUser>("users")
+      .findOne({ _id: new ObjectId(id) });
+
+    if (!user) {
+      return null;
+    }
+
+    const { _id, ...rest } = user;
+
+    return {
+      ...rest,
+      id: _id.toHexString(),
+    };
   }
 }

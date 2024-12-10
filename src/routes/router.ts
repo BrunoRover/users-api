@@ -14,8 +14,19 @@ router.get("/", async (req, res) => {
   const mongoGetUsersRepository = new MongoGetUsersRepository();
   const getUserController = new GetUserController(mongoGetUsersRepository);
 
-  const { body, statusCode } = await getUserController.handle();
+  const { body, statusCode } = await getUserController.handle({
+    params: {},
+  });
 
+  res.status(statusCode).send(body);
+});
+
+router.get("/:id", async (req, res) => {
+  const mongoGetIdUserRepository = new MongoGetUsersRepository();
+  const getUserController = new GetUserController(mongoGetIdUserRepository);
+  const { body, statusCode } = await getUserController.handle({
+    params: { id: req.params.id },
+  });
   res.status(statusCode).send(body);
 });
 
